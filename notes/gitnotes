@@ -1,0 +1,46 @@
+        git config --global user.name "Danil" 
+        git config --global user.email ev8ko@icloud.com
+    git init 
+        git status 
+git add -A 
+git commit -m "first"
+    git commit -am "x" 
+        git log  ->  Q
+
+
+    git diff        и первые семь символов хеша этих коммитов. Чтобы не считать символы вручную, используйте
+    git log --oneline
+
+
+    git branch testing # создали новую ветку
+    git branch # проверили, в какой ветке находимся
+        testing # появилась новая ветка
+        * master # но мы пока находимся в ветке master
+        
+    git checkout testing # переключились в ветку testing
+
+    git checkout master # переходим в основную ветку
+    git merge testing # переносим код из ветки testing в основную
+
+
+    git clone <URL>
+
+git push -u origin master
+
+    git checkout -f sprint_1 # -f сотрёт все незакоммиченные данные! Это важно, так как вы можете потерять весь код, который писали и не закоммитили.
+    git checkout -b deploy # создаём ветку с названием деплой
+    git push -u origin deploy # связываем ветку с origin и пушим её на сервер
+
+
+
+
+git branch --delete master
+
+
+
+
+
+
+    -P, --save-prod         установка в dependencies (работает по умолчанию)
+    -D, --save-dev          установка в devDependencies
+    -O, --save-optional     установка в optionalDependencies
