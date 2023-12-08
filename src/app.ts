@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import User from './models/user';
 
+import bodyParser from 'body-parser';
+import router from './routes/films';
+
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 
@@ -29,6 +32,8 @@ app.post('/signup', (req: Request, res: Response) => {
       res.status(400).send(err);
     });
 });
+
+app.use('/films', router);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {

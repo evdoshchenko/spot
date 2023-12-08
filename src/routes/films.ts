@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import Film from '../models/films';
+import Film from '../models/film';
 
 const router = Router();
 router.get('/', (_req: Request, res: Response) => {
@@ -14,7 +14,7 @@ router.post('/', (req: Request, res: Response) => {
 
   return Film.create({ title, genre })
     .then((film) => res.send({ data: film }))
-    .catch(() => res.status(500).send({ message: 'Произошла ERror' }));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 });
 
 export default router;
