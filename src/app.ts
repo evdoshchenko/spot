@@ -1,42 +1,34 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import path from 'path';
-import express, { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import User from './models/user';
+import express from 'express';
+import { authToken } from './controllers/authToken';
 
-import bodyParser from 'body-parser';
-import router from './routes/films';
+import { router } from './Router';
+import { connectToDB } from './db'
+import { errorResponder } from './controllers/errors'
 
-const { PORT = 3000, BASE_PATH } = process.env;
-const app = express();
+const { PORT } = process.env;
+import { errors } from 'celebrate';
 
-mongoose.connect('mongodb://localhost:27017/authdb');
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+async function createServer() {
+  connectToDB();
 
-app.post('/signup', (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  return bcrypt.hash(password, 10)
-    .then((hash: string) => User.create({
-      email: email,
-      password: hash,
-    }))
-    .then((user) => {
-      res.status(201).send({
-        _id: user._id,
-        email: email,
-      });
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
-});
+  const app = express();
+  app.use(authToken)
+  app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/films', router);
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
+  app.use(router);
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.listen(PORT, () => {
-  console.log('Ссылка на сервер:');
-  console.log(BASE_PATH);
-});
+  app.use(errors());
+  app.use(errorResponder)
+
+  return { app }
+}
+
+createServer().then(({ app }) => app.listen(PORT, () => {
+  console.log(`  ➜ 🎸 Server is listening on port: ${PORT}`)
+}))
