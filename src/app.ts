@@ -1,5 +1,3 @@
-import dotenv from 'dotenv'
-dotenv.config()
 import path from 'path';
 import express from 'express';
 import { authToken } from './controllers/authToken';
@@ -8,7 +6,7 @@ import { router } from './Router';
 import { connectToDB } from './db'
 import { errorResponder } from './controllers/errors'
 
-const { PORT } = process.env;
+import { PORT } from './config';
 import { errors } from 'celebrate';
 
 

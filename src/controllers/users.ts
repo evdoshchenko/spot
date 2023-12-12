@@ -11,7 +11,7 @@ import { celebrate, Joi, Segments } from 'celebrate';
 export const get = async (req: Request, res: Response) => {
   return User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 }
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {

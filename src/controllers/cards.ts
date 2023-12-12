@@ -8,7 +8,7 @@ import { celebrate, Joi, Segments } from 'celebrate';
 export const get = async (req: Request, res: Response) => {
   return Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 }
 
 export const getCard = async (req: Request, res: Response) => {
@@ -17,7 +17,7 @@ export const getCard = async (req: Request, res: Response) => {
       console.log(card);
       res.send({ data: card })
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 }
 
 export const deleteCard = async (req: Request, res: Response, next: NextFunction) => {
@@ -36,7 +36,7 @@ export const post = async (req: Request, res: Response) => {
 
   return Card.create({ name, link, owner: ownerId, likes, createdAt })
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 }
 
 
