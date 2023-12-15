@@ -21,12 +21,22 @@ export const getCard = async (req: Request, res: Response) => {
 }
 
 export const deleteCard = async (req: Request, res: Response, next: NextFunction) => {
-  return Card.deleteOne({ _id: req.params.cardId })
+  const { cardId } = req.params;
+
+  return Card.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new AppError(404, `Передан несуществующий _id карточки`)
       }
-      res.send({ data: card })
+      console.log(card.owner, req.user._id)
+      if (String(card.owner) === req.user._id) {
+        Card.deleteOne({ _id: cardId })
+          .then(() => res.send({ message: 'Карточка была удалена' }))
+          .catch(next);
+
+      } else {
+        throw new AppError(404, `Чужая карточка`)
+      }
     })
     .catch(next);
 }

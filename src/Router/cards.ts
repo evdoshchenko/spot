@@ -18,6 +18,7 @@ import {
   PUT_LIKE_ROUTE,
   DELETE_LIKE_ROUTE,
 } from './routes'
+import auth from '../middlewares/auth';
 
 
 export const cardsRouter = (router: Router) => {
@@ -26,6 +27,7 @@ export const cardsRouter = (router: Router) => {
   router.use(CARDS_ROUTE, cardsRouter)
 
   cardsRouter
+    .use(auth)
     .get(GET_CARDS_ROUTE, get)
     .get(GET_CARD_ROUTE, getCard)
     .delete(DELETE_CARD_ROUTE, deleteCard)

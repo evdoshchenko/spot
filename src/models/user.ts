@@ -1,5 +1,8 @@
-import { model, Schema } from 'mongoose';
+import mongoose, { model, Schema, Types } from 'mongoose';
 import validator from 'validator';
+import bcrypt from 'bcrypt';
+
+import { AppError } from '../controllers/errors';
 
 export interface IUser {
   name: string;
@@ -9,27 +12,34 @@ export interface IUser {
   password: string;
 }
 
-const userSchema = new Schema<IUser>({
+interface UserModel extends mongoose.Model<IUser> {
+  findUserByCredentials: (email: string, password: string) => Promise<mongoose.Document<unknown, any, IUser>>
+}
+
+const userSchema = new mongoose.Schema<IUser, UserModel>({
   name: {
     type: String,
-    required: true,
+    required: false,
+    default: 'Жак-Ив Кусто',
     minlength: 2,
     maxlength: 30,
   },
   about: {
     type: String,
-    required: true,
+    required: false,
+    default: 'Исследователь',
     minlength: 2,
     maxlength: 200,
   },
   avatar: {
     type: String,
-    required: true,
+    required: false,
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
-    unique: false,
-    required: false,
+    unique: true,
+    required: true,
     validate: {
       validator: (v: string) => validator.isEmail(v),
       message: 'Неправильный формат почты',
@@ -37,8 +47,25 @@ const userSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: false,
+    required: true,
+    select: false
   },
 });
 
-export default model<IUser>('User', userSchema);
+userSchema.static('findUserByCredentials', function findUserByCredentials(email: string, password: string) {
+  return this.findOne({ email }).select('+password').then((user) => {
+    if (!user) {
+      return Promise.reject(new AppError(401, `Пользователь не найден`));
+    }
+
+    return bcrypt.compare(password, user.password).then((matched) => {
+      if (!matched) {
+        return Promise.reject(new AppError(401, `Что-то не так с почтой или паролем`));
+      }
+
+      return user;
+    });
+  });
+});
+
+export default model<IUser, UserModel>('User', userSchema);

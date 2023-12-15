@@ -2,7 +2,9 @@ import { Router, Request, Response } from 'express';
 import {
   get,
   getUser,
-  post,
+  getUserMe,
+  signInUser,
+  signUpUser,
   patchUser,
   patchAvatar,
   validateUser,
@@ -12,13 +14,13 @@ import {
   USERS_ROUTE,
   GET_USERS_ROUTE,
   GET_USER_ROUTE,
-  POST_USERS_ROUTE,
+  GET_USER_ME_ROUTE,
+  SIGNIN_USER_ROUTE,
+  SIGNUP_USER_ROUTE,
   PATCH_USER_ROUTE,
   PATCH_AVATAR_ROUTE
 } from './routes'
-
-const { celebrate, Joi, Segments } = require('celebrate');
-
+import auth from '../middlewares/auth';
 
 
 export const usersRouter = (router: Router) => {
@@ -27,9 +29,12 @@ export const usersRouter = (router: Router) => {
   router.use(USERS_ROUTE, usersRouter)
 
   usersRouter
+    .post(SIGNIN_USER_ROUTE, validateUser, signInUser)
+    .post(SIGNUP_USER_ROUTE, validateUser, signUpUser)
+    .use(auth)
     .get(GET_USERS_ROUTE, get)
+    .get(GET_USER_ME_ROUTE, getUserMe)
     .get(GET_USER_ROUTE, getUser)
-    .post(POST_USERS_ROUTE, validateUser, post)
     .patch(PATCH_USER_ROUTE, validateUser, patchUser)
     .patch(PATCH_AVATAR_ROUTE, validateAvatar, patchAvatar)
 }
