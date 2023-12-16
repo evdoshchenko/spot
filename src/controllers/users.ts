@@ -6,6 +6,7 @@ import { celebrate, Joi, Segments } from 'celebrate';
 import { ObjectId } from 'mongodb';
 
 import { AppError } from './errors';
+import { JWT_WORD } from '../config';
 
 
 export const get = async (req: Request, res: Response, next: NextFunction) => {
@@ -16,20 +17,14 @@ export const get = async (req: Request, res: Response, next: NextFunction) => {
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   return User.findOne({ _id: req.params.userId })
-    .then((user) => {
-      console.log(user);
-      res.send({ data: user })
-    })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .then((user) => res.send({ data: user }))
+    .catch(next);
 }
 
 export const getUserMe = async (req: Request, res: Response, next: NextFunction) => {
   return User.findOne({ _id: req.user._id })
-  .then((user) => {
-    console.log(user);
-    res.send({ data: user })
-  })
-  .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+  .then((user) => res.send({ data: user }))
+  .catch(next);
 }
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -39,7 +34,7 @@ export const signInUser = async (req: Request, res: Response, next: NextFunction
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'super-strong-secret',
+        String(JWT_WORD),
         { expiresIn: '7d'
       })
 
@@ -79,8 +74,6 @@ export const signUpUser = async (req: Request, res: Response, next: NextFunction
 
 export const patchUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar } = req.body;
-
-  console.log('_id=',req.user._id);
   return User.findByIdAndUpdate({_id: new ObjectId(req.user._id)}, { name, about, avatar})
     .then((user) => {
       if (!user) {
@@ -93,7 +86,6 @@ export const patchUser = async (req: Request, res: Response, next: NextFunction)
 
 export const patchAvatar = async (req: Request, res: Response, next: NextFunction) => {
   const { avatar } = req.body;
-  console.log('avatar',req.user._id)
   return User.findByIdAndUpdate({_id: new ObjectId(req.user._id)}, { avatar })
     .then((user) => {
       if (!user) {

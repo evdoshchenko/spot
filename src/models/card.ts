@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { ObjectId } from 'mongodb';
-
+import validator from 'validator';
 
 export interface ICard {
   name: string
@@ -19,7 +19,11 @@ const cardSchema = new Schema<ICard>({
   },
   link: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: (v: string) => validator.isURL(v),
+      message: 'Неправильный формат почты',
+    },
   },
   owner: {
     type: Schema.Types.ObjectId,

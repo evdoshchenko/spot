@@ -1,3 +1,4 @@
+import { JWT_WORD } from '../config';
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
@@ -24,14 +25,12 @@ export default (req: SessionRequest, res: Response, next: NextFunction) => {
 
   const token = extractBearerToken(authorization);
   let payload;
-  console.log('token=', token)
 
   try {
-    payload = jwt.verify(token, 'super-strong-secret');
+    payload = jwt.verify(token, String(JWT_WORD));
   } catch (err) {
     return handleAuthError(res);
   }
-  console.log('auth=',payload);
   req.user = payload;
   next();
 };

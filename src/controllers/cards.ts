@@ -5,19 +5,16 @@ import { AppError } from './errors';
 
 import { celebrate, Joi, Segments } from 'celebrate';
 
-export const get = async (req: Request, res: Response) => {
+export const get = async (req: Request, res: Response, next: NextFunction) => {
   return Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch(next);
 }
 
-export const getCard = async (req: Request, res: Response) => {
+export const getCard = async (req: Request, res: Response, next: NextFunction) => {
   return Card.findOne({ _id: req.params.cardId })
-    .then((card) => {
-      console.log(card);
-      res.send({ data: card })
-    })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .then((card) => res.send({ data: card }))
+    .catch(next);
 }
 
 export const deleteCard = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +25,6 @@ export const deleteCard = async (req: Request, res: Response, next: NextFunction
       if (!card) {
         throw new AppError(404, `Передан несуществующий _id карточки`)
       }
-      console.log(card.owner, req.user._id)
       if (String(card.owner) === req.user._id) {
         Card.deleteOne({ _id: cardId })
           .then(() => res.send({ message: 'Карточка была удалена' }))
@@ -41,12 +37,12 @@ export const deleteCard = async (req: Request, res: Response, next: NextFunction
     .catch(next);
 }
 
-export const post = async (req: Request, res: Response) => {
+export const post = async (req: Request, res: Response, next: NextFunction) => {
   const { name, link, ownerId, likes = [], createdAt = Date.now() } = req.body;
 
   return Card.create({ name, link, owner: ownerId, likes, createdAt })
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch(next);
 }
 
 
