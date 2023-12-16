@@ -1,9 +1,11 @@
 import type { Request, Response, NextFunction } from 'express'
 import Card from '../models/card';
 
-import { AppError } from './errors';
-
 import { celebrate, Joi, Segments } from 'celebrate';
+
+import {
+  NotFoundError
+} from '../controllers/errors';
 
 export const get = async (req: Request, res: Response, next: NextFunction) => {
   return Card.find({})
@@ -23,7 +25,7 @@ export const deleteCard = async (req: Request, res: Response, next: NextFunction
   return Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        throw new AppError(404, `Передан несуществующий _id карточки`)
+        throw new NotFoundError(`Передан несуществующий _id карточки`);
       }
       if (String(card.owner) === req.user._id) {
         Card.deleteOne({ _id: cardId })
@@ -31,7 +33,7 @@ export const deleteCard = async (req: Request, res: Response, next: NextFunction
           .catch(next);
 
       } else {
-        throw new AppError(404, `Чужая карточка`)
+        throw new NotFoundError(`Чужая карточка`);
       }
     })
     .catch(next);
@@ -54,7 +56,7 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   )
     .then((card) => {
       if (!card) {
-        throw new AppError(404, `Передан несуществующий _id карточки`)
+        throw new NotFoundError(`Передан несуществующий _id карточки`);
       }
       res.send({ data: card })
     })
@@ -69,7 +71,7 @@ export const dislikeCard = (req: Request, res: Response, next: NextFunction) => 
   )
     .then((card) => {
       if (!card) {
-        throw new AppError(404, `Передан несуществующий _id карточки`)
+        throw new NotFoundError(`Передан несуществующий _id карточки`);
       }
       res.send({ data: card })
     })
@@ -81,7 +83,7 @@ export const validateCard = async (req: Request, res: Response, next: NextFuncti
     [Segments.BODY]: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
       link: Joi.string().required(),
-      ownerId: Joi.string().alphanum().length(24),
+      ownerId: Joi.string().hex().length(24),
     }),
   })(req,res,next)
 }
@@ -89,7 +91,7 @@ export const validateCard = async (req: Request, res: Response, next: NextFuncti
 export const validateLike = async (req: Request, res: Response, next: NextFunction) => {
   return celebrate({
     [Segments.PARAMS]: Joi.object().keys({
-      cardId: Joi.string().alphanum().length(24),
+      cardId: Joi.string().hex().length(24),
     }),
   })(req,res,next)
 }

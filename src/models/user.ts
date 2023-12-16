@@ -2,7 +2,7 @@ import mongoose, { model, Schema, Types } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 
-import { AppError } from '../controllers/errors';
+import { UnauthorizedError } from '../controllers/errors';
 
 export interface IUser {
   name: string;
@@ -59,12 +59,12 @@ const userSchema = new mongoose.Schema<IUser, UserModel>({
 userSchema.static('findUserByCredentials', function findUserByCredentials(email: string, password: string) {
   return this.findOne({ email }).select('+password').then((user) => {
     if (!user) {
-      return Promise.reject(new AppError(401, `Пользователь не найден`));
+      return Promise.reject(new UnauthorizedError(`Пользователь не найден`));
     }
 
     return bcrypt.compare(password, user.password).then((matched) => {
       if (!matched) {
-        return Promise.reject(new AppError(401, `Что-то не так с почтой или паролем`));
+        return Promise.reject(new UnauthorizedError(`Что-то не так с почтой или паролем`));
       }
 
       return user;

@@ -5,8 +5,11 @@ import jwt from 'jsonwebtoken';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { ObjectId } from 'mongodb';
 
-import { AppError } from './errors';
 import { JWT_WORD } from '../config';
+import {
+  NotFoundError,
+  ConflictError,
+} from '../controllers/errors';
 
 
 export const get = async (req: Request, res: Response, next: NextFunction) => {
@@ -57,7 +60,7 @@ export const signUpUser = async (req: Request, res: Response, next: NextFunction
       User.create({ name, about, avatar, email, password: hash })
     .then((user) => {
       if (!user) {
-        throw new AppError(404, `Пользователь с указанным _id не найден`)
+        throw new NotFoundError( `Пользователь с указанным _id не найден`)
       }
       res.status(201).send({
         _id: user._id,
@@ -66,7 +69,7 @@ export const signUpUser = async (req: Request, res: Response, next: NextFunction
     })
     .catch((err) => {
       if (err.code === 11000) {
-        throw new AppError(409, `Такой пользователь уже существует`)
+        throw new ConflictError( `Такой пользователь уже существует`)
       }
       next(err)
     }));
@@ -77,7 +80,7 @@ export const patchUser = async (req: Request, res: Response, next: NextFunction)
   return User.findByIdAndUpdate({_id: new ObjectId(req.user._id)}, { name, about, avatar})
     .then((user) => {
       if (!user) {
-        throw new AppError(404, `Пользователь с указанным _id не найден`)
+        throw new NotFoundError(`Пользователь с указанным _id не найден`)
       }
       res.send({ data: user })
     })
@@ -89,7 +92,7 @@ export const patchAvatar = async (req: Request, res: Response, next: NextFunctio
   return User.findByIdAndUpdate({_id: new ObjectId(req.user._id)}, { avatar })
     .then((user) => {
       if (!user) {
-        throw new AppError(404, `Пользователь с указанным _id не найден`)
+        throw new NotFoundError(`Пользователь с указанным _id не найден`)
       }
       res.send({ data: user })
     })
